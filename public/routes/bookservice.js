@@ -1,0 +1,28 @@
+"use strict";
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
+const express_1 = __importDefault(require("express"));
+const celebrate_1 = require("celebrate");
+const login_controller_1 = require("../Login/login.controller");
+const login_repository_1 = require("../Login/login.repository");
+const login_service_1 = require("../Login/login.service");
+const bookservice_repository_1 = require("../Book_Service/bookservice.repository");
+const bookservice_controller_1 = require("../Book_Service/bookservice.controller");
+const bookservice_service_1 = require("../Book_Service/bookservice.service");
+const bookservice_model_1 = require("../Book_Service/bookservice.model");
+const router = express_1.default.Router();
+const loginRepository = new login_repository_1.LoginRepository();
+const loginService = new login_service_1.LoginService(loginRepository);
+const loginController = new login_controller_1.LoginController(loginService);
+const bookRepository = new bookservice_repository_1.BookServiceRepository();
+const bookService = new bookservice_service_1.BookService(bookRepository);
+const bookController = new bookservice_controller_1.BookServiceController(bookService);
+const { zipcode_match, U_Add, Create_Ser } = bookservice_model_1.BookServiceSchema;
+router.post('/confirm-zipcode', (0, celebrate_1.celebrate)(zipcode_match), loginController.authenticateToken, bookController.confirmServiceAvailable);
+router.post('/create-ser_request', (0, celebrate_1.celebrate)(Create_Ser), loginController.authenticateToken, bookController.decodeToken, bookController.CreateServiceRequest);
+router.post('/user-address', (0, celebrate_1.celebrate)(U_Add), loginController.authenticateToken, bookController.createUserAddress);
+router.get('/user-addresses', loginController.authenticateToken, bookController.getUserAddresses);
+router.post('/create-favorite-blocked', loginController.authenticateToken, bookController.createFavoriteAndBlocked);
+router.get('/create-favorite-blocked', loginController.authenticateToken, bookController.getFavoriteAndBlocked);
+module.exports = router;
